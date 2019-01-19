@@ -71,3 +71,18 @@ class Order:
         #if the order is still living, return float("inf")
         return self.deathtime
 
+    def modify(self, update):
+        assert (update.get_reason() == 1 or update.get_reason() == 2)
+        if (update.get_reason() == 1):
+            #this order is cancelled
+            assert (update.get_delta() == 0 and update.get_remaining == 0 and update.get_price() == self.get_price())
+            self.remainming == 0
+            self.is_dead = True
+            self.deathtime = update.get_timestamp()
+        elif (update.get_reason() == 2):
+            #this order is traded, partially or completely
+            assert (update.get_price() == self.get_price())
+            self.remainming = update.get_remainming()
+            if (self.remainming == 0):
+                self.is_dead = True
+                self.deathtime = update.get_timestamp()
