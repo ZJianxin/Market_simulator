@@ -1,5 +1,3 @@
-import numpy as np
-
 class Update:
     # Attributes:
     #   id - int, the event id
@@ -7,7 +5,8 @@ class Update:
     #   price - float, the value of self.price attribute of corresponding order
     #   remaining - float, the remaining volume of corresponding order after the update
     #   delta - float, the change of remaining volume
-    #   timestamp - int, an int representing the time (in millisecond)
+    #   timestamp - int, an int representing the time
+    #   timestampms - int, an int representing the time (in millisecond)
     #   reason - int, the reason of the change, 3 possible values.
     # Methods:
     #   initializer - initialize an Update object from a 1-d numpy array OR 7 arguments (same ordering)
@@ -18,6 +17,7 @@ class Update:
     #   i - read the ith entry
     # Modifies:
     #   setting the initial 7 arguments
+
     def __init__(self, update_entry):
         self.is_bid = update_entry[0]
         self.price = update_entry[1]
@@ -26,7 +26,7 @@ class Update:
         self.timestamp = update_entry[4]
         self.timestampms = update_entry[5]
         self.reason = update_entry[6]
-        self.eventId = update_entry[7]
+        self.id = update_entry[7]
 
     # Returns:
     #   is_bid
@@ -65,8 +65,8 @@ class Update:
 
     # Return:
     #   eventId
-    def get_eventId(self):
-        return self.eventId
+    def get_id(self):
+        return self.id
 
 
 '''
