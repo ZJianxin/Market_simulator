@@ -20,7 +20,10 @@ class Order:
     #   *getters - return value of attributes
     Counter = 0
     def __init__(self, array):
-        #input: a numpy array,
+        #Construct an Order object
+        #Input: a numpy array, or an Update object
+        #Returns:
+        #Modifies:
         self.id = Order.Counter
         Order.Counter += 1
         if isinstance(array, np.ndarray):

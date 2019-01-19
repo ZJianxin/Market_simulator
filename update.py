@@ -23,7 +23,7 @@ def func(arg1, arg2 == Default):
     #   arg2 - ...
     #Returns:
     #   output - (explanation)
-    #Modified: 
+    #Modifies: 
     #   variale_name - type, (explanation)
 
 '''
