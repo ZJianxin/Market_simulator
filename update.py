@@ -5,8 +5,7 @@ class Update:
     #   price - float, the value of self.price attribute of corresponding order
     #   remaining - float, the remaining volume of corresponding order after the update
     #   delta - float, the change of remaining volume
-    #   timestamp - int, an int representing the time
-    #   timestampms - int, an int representing the time (in millisecond)
+    #   timestamp - int, an int representing the time (in millisecond)
     #   reason - int, the reason of the change, 3 possible values.
     # Methods:
     #   initializer - initialize an Update object from a 1-d numpy array OR 7 arguments (same ordering)
@@ -23,8 +22,7 @@ class Update:
         self.price = update_entry[1]
         self.remaining = update_entry[2]
         self.delta = update_entry[3]
-        self.timestamp = update_entry[4]
-        self.timestampms = update_entry[5]
+        self.timestamp = update_entry[5]
         self.reason = update_entry[6]
         self.id = update_entry[7]
 
@@ -52,11 +50,6 @@ class Update:
     #   timestamp
     def get_timestamp(self):
         return self.timestamp
-
-    # Returns:
-    #   timestampms
-    def get_timestampms(self):
-        return self.timestampms
 
     # Returns:
     #   reason
