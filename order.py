@@ -1,3 +1,6 @@
+import numpy as np
+from update import Update
+
 class Order:
     #Static variable: counter - count the total number of existed orders.
     #
@@ -14,21 +17,45 @@ class Order:
     #Methods:
     #   initializer - initialize an order from an Update object or a 1-d numpy array
     #   mofify - modify the order object given an Update object
+    #   *getters - return value of attributes
     Counter = 0
-    def __init__(self, arg1, price == None, remaining == None):
+    def __init__(self, array):
         #input: a numpy array,
-        Counter += 1
-        self.id = Counter
-        if array.shape[0] == 4:
+        self.id = Order.Counter
+        Order.Counter += 1
+        if isinstance(array, np.ndarray):
+            assert (not isinstance(array, Update))
+            assert (array.shape[0] == 3)
             #in this case, the initilzed Order object is an initial order
             #i.e. this order exits by the start of time frame
             self.is_bid = (array[0] == 1)
-            self.price = array[2]
-            self.remainming =  array[3]
-            self.is_dead = False
-            self.borntime = 0
-            self.dead_time = float("inf")
-        else if array.shape[0] = 7:
-            self.is_bid = (array[0] == 1)
             self.price = array[1]
-            self.
+            self.remainming =  array[2]
+            self.is_dead = False
+            self.birthtime = 0
+            self.deathtime = float("inf")
+        else:
+            pass
+
+    def get_id(self):
+        return self.id
+
+    def get_is_bit(self):
+        return self.is_bid
+
+    def get_price(self):
+        return self.price
+
+    def get_remaining(self):
+        return self.remainming
+
+    def get_is_dead(self):
+        return self.is_dead
+
+    def get_borntime(self):
+        return self.birthtime
+
+    def get_deathtime(self):
+        #if the order is still living, return float("inf")
+        return self.deathtime
+
