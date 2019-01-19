@@ -27,7 +27,6 @@ class Order:
         self.id = Order.Counter
         Order.Counter += 1
         if isinstance(array, np.ndarray):
-            assert (not isinstance(array, Update))
             assert (array.shape[0] == 3)
             #in this case, the initilzed Order object is an initial order
             #i.e. this order exits by the start of time frame
@@ -38,7 +37,17 @@ class Order:
             self.birthtime = 0
             self.deathtime = float("inf")
         else:
-            pass
+            update = array
+            assert (isinstance(update, Update))
+            assert (update.get_reason() == 2)
+            assert (update.get_remaining() == update.get_delta())
+            self.is_bid = update.get_is_bid()
+            self.price = update.get_price()
+            self.remainming = update.get_remaining()
+            self.is_dead = False
+            self.birthtime = update.get_timestamp()
+            self.deathtime = float("inf")
+
 
     def get_id(self):
         return self.id
@@ -62,3 +71,18 @@ class Order:
         #if the order is still living, return float("inf")
         return self.deathtime
 
+    def modify(self, update):
+        assert (update.get_reason() == 1 or update.get_reason() == 2)
+        if (update.get_reason() == 1):
+            #this order is cancelled
+            assert (update.get_delta() == 0 and update.get_remaining == 0 and update.get_price() == self.get_price())
+            self.remainming == 0
+            self.is_dead = True
+            self.deathtime = update.get_timestamp()
+        elif (update.get_reason() == 2):
+            #this order is traded, partially or completely
+            assert (update.get_price() == self.get_price())
+            self.remainming = update.get_remainming()
+            if (self.remainming == 0):
+                self.is_dead = True
+                self.deathtime = update.get_timestamp()
