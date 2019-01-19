@@ -17,3 +17,7 @@ for i in range(len(order_list)):
             or order.is_dead == True or order.birthtime != 0 or order.deathtime != float('inf'):
         raise Exception("test", i, "fail")
 
+#todo:
+#1.test Update initializer
+#2.test Order initilializer with an Update object as parameter
+#3.test modify method in Order class
