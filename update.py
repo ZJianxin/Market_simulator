@@ -49,17 +49,17 @@ class Update:
     # Returns:
     #   timestamp
     def get_timestamp(self):
-        return self.timestamp
+        return int(self.timestamp)
 
     # Returns:
     #   reason
     def get_reason(self):
-        return self.reason
+        return int(self.reason)
 
     # Return:
     #   eventId
     def get_id(self):
-        return self.id
+        return int(self.id)
 
 
 '''
