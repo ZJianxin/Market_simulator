@@ -28,6 +28,6 @@ class Orderbook:
     #   place_order(Update) - create an new Order object; hash into order_dict and price_volume_dict;
     #                         insert into ask_list and bid_list
 
-    # !!!!!!!!!rememeber update timestamp
+    # !!!!!!!!!remember update timestamp
     def __int__(self):
         pass

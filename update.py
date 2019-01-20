@@ -73,6 +73,6 @@ def func(arg1, arg2 == Default):
     #Returns:
     #   output - (explanation)
     #Modifies: 
-    #   variale_name - type, (explanation)
+    #   variable_name - type, (explanation)
 
 '''

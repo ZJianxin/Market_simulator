@@ -17,7 +17,7 @@ class Order:
     #   becomes zero
     # Methods:
     #   initializer - initialize an order from an Update object or a 1-d numpy array
-    #   mofify - modify the order object given an Update object
+    #   modify - modify the order object given an Update object
     #   *getters - return value of attributes
 
     Counter = 0
