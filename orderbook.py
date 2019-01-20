@@ -2,10 +2,11 @@ from order import *
 import numpy as np
 import bisect
 
+
 class Orderbook:
-    #keeps a se of orders
-    #represents a snapshot at a given time
-    #Attributes:
+    # keeps a se of orders
+    # represents a snapshot at a given time
+    # Attributes:
     #   timestamp - the time associated with the snapshot of market, automatically updated with latest order;
     #               it's the USER's responsibility to maintain its integrity
     #   order_dict - a dictionary mapping order_id to order, container of orders
@@ -15,7 +16,7 @@ class Orderbook:
     #   ask_list - a list of ask orders' id sorted by price in increasing order
     #   bid_list - a list of bid orders' id sorted by price in decrease order
     #              assume in each "trade" update, only best price be executed.
-    #Methods:
+    # Methods:
     # public:
     #   initializer(Orderbook, np.ndarray) - initialize an Orderbook object from a number ndarray
     #   execute_update(Orderbook, Update) - update an order and time stamp
@@ -27,6 +28,6 @@ class Orderbook:
     #   place_order(Update) - create an new Order object; hash into order_dict and price_volume_dict;
     #                         insert into ask_list and bid_list
 
-    #!!!!!!!!!rememeber update timestamp
+    # !!!!!!!!!rememeber update timestamp
     def __int__(self):
         pass
