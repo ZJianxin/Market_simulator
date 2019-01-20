@@ -30,7 +30,7 @@ class Orderbook:
     #                                               insert into ask_list and bid_list.
     #   _check_timestamp_consistency(Orderbook self, Update update) - helper function, check if an update is consistent
     #                                                               with orderbook's timestamp.
-    #                                                               i.e. update's time is ahead of orderbook's timestamp
+    #                                                               i.e. update's time is ahead of orderbook's timestampt
     #!!!!!!!!!rememeber update timestamp
     def __int__(self, data, timestamp = 0):
         #Input: a numpy ndarray, formatted as desired initial orders
