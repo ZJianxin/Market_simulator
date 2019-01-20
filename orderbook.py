@@ -3,10 +3,14 @@ import numpy as np
 import bisect
 from sortedcontainers import SortedList
 
+
 class Orderbook:
     #keeps a set of orders
     #represents a snapshot at a given time
     #Attributes:
+    # keeps a set of orders
+    # represents a snapshot at a given time
+    # Attributes:
     #   timestamp - the time associated with the snapshot of market, automatically updated with latest order;
     #               it's the USER's responsibility to maintain its integrity
     #   order_dict - a dictionary mapping order_id to order, the container of Order objects
@@ -17,7 +21,7 @@ class Orderbook:
     #   ask_list - a list of ask orders' id sorted by price in increasing order
     #   bid_list - a list of bid orders' id sorted by price in decrease order
     #              assume in each "trade" update, only best price be executed.
-    #Methods:
+    # Methods:
     # public:
     #   initializer(Orderbook, np.ndarray, [optional] int timestamp) - initialize an Orderbook object from a number ndarray
     #   execute_update(Orderbook, Update) - update an order and time stamp, can't execute an order before timestamp
@@ -28,7 +32,6 @@ class Orderbook:
     #   _trade_order(Orderbook self, Update update) - guaranteed to trade the "best order"; rehash/remove it if necessary
     #   _place_order(Orderbook self, Update update) - create an new Order object; hash into order_dict and price_volume_dict;
     #                         insert into ask_list and bid_list
-
     #!!!!!!!!!rememeber update timestamp
     def __int__(self, data, timestamp = 0):
         #Input: a numpy ndarray, formatted as desired initial orders
@@ -109,4 +112,4 @@ class Orderbook:
         #   price_volume_dict - corresponding key will be removed by _remove_order
         #   ask_list - corresponding id will be removed by _remove_order
         #   bidlist - corresponding id will be removed by _remove_order
-        pass
+

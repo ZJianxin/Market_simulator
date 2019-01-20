@@ -13,11 +13,12 @@ for i in range(order_info.shape[0]):
 
 for i in range(len(order_list)):
     order = order_list[i]
-    if order.id != i or order.is_bid != ((i+1) % 2 + 1 == 1) or order.price != (i+1) * 4.53 or order.remainming != (i+1) * 3.88 - 9\
-            or order.is_dead == True or order.birthtime != 0 or order.deathtime != float('inf'):
-        raise Exception("test", i, "fail")
+    if order.id != i or order.is_bid != ((i+1) % 2 + 1 == 1) or order.price != (i+1) * 4.53 or \
+            order.remaining != (i+1) * 3.88 - 9 or order.is_dead or order.birthtime != 0 or \
+            order.deathtime != float('inf'):
+        raise Exception("test_initializer ", i, " fail")
 
-#todo:
-#1.test Update initializer
-#2.test Order initilializer with an Update object as parameter
-#3.test modify method in Order class
+# todo:
+# 1.test Update initializer
+# 2.test Order initializer with an Update object as parameter
+# 3.test modify method in Order class
