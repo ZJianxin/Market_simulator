@@ -172,3 +172,18 @@ class Orderbook:
             return True
         else:
             return False
+
+    def execute_update(self, update):
+        # call an appropriate method to execute the order
+        # Input: an Update object
+        # Returns:
+        # Modifies:
+        #   the orderbook
+        if (update.get_reason() == 1):
+            self._cancel_order(update)
+        elif (update.get_reason() == 2):
+            self._trade_order(update)
+        elif (update.get_reason() == 3):
+            self._place_order(update)
+        else:
+            raise Exception("INVALID UPDATE REASON, VALUE NOT IN {1, 2, 3}")
