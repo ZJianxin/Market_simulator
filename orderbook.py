@@ -98,8 +98,9 @@ class Orderbook:
         assert (pv_pair in self.price_volume_dict.keys()
                 and len(self.price_volume_dict[pv_pair]) > 0, "INVALID PRICE_VOLUME_PAIR KEY")
         id = self.price_volume_dict[pv_pair][0]
+        order = self.order_dict[id]
         self._remove_order(id)
-        self.order_dict[id].modify(update)
+        order.modify(update)
 
     def _trade_order(self, update):
         # trade an order AT THE TOP OF ORDERBOOK. i.e either bid_list[0] or ask_list[0] will be modified.
