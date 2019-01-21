@@ -54,7 +54,7 @@ class Order:
     def get_id(self):
         return self.id
 
-    def get_is_bit(self):
+    def get_is_bid(self):
         return self.is_bid
 
     def get_price(self):

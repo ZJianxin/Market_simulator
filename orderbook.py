@@ -32,7 +32,7 @@ class Orderbook:
     #                                                               with orderbook's timestamp.
     #                                                               i.e. update's time is ahead of orderbook's timestampt
     #!!!!!!!!!rememeber update timestamp
-    def __int__(self, data, timestamp = 0):
+    def __init__(self, data, timestamp = 0):
         #Input: a numpy ndarray, formatted as desired initial orders
         #Returns:
         #Modifies:
@@ -53,7 +53,7 @@ class Orderbook:
             else:
                 self.price_volume_dict[price_volume_pair] = SortedList(key = lambda x, d=self.order_dict : d[x].get_birthtime())
                 self.price_volume_dict[price_volume_pair].add(id)
-            if (order.get_is_bit()):
+            if (order.get_is_bid()):
                 self.bid_list.add(id)
             else:
                 self.ask_list.add(id)
@@ -74,7 +74,7 @@ class Orderbook:
         #if len(self.price_volume_dict[price_volume_pair] == 1):
         #    del self.price_volume_dict[price_volume_pair]
         self.price_volume_dict[price_volume_pair].remove(id)
-        if (order.get_is_bit()):
+        if (order.get_is_bid()):
             self.bid_list.remove(id)
         else:
             self.ask_list.remove(id)
@@ -156,7 +156,7 @@ class Orderbook:
         else:
             self.price_volume_dict[pv_pair] = SortedList(key=lambda x, d=self.order_dict: d[x].get_birthtime())
             self.price_volume_dict[pv_pair].add(id)
-        if (new_order.get_is_bit()):
+        if (new_order.get_is_bid()):
             self.bid_list.add(id)
         else:
             self.ask_list.add(id)

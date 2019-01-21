@@ -18,7 +18,3 @@ for i in range(len(order_list)):
             order.deathtime != float('inf'):
         raise Exception("test_initializer ", i, " fail")
 
-# todo:
-# 1.test Update initializer
-# 2.test Order initializer with an Update object as parameter
-# 3.test modify method in Order class
