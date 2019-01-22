@@ -66,7 +66,7 @@ class Order:
     def get_is_dead(self):
         return self.is_dead
 
-    def get_borntime(self):
+    def get_birthtime(self):
         return self.birthtime
 
     def get_deathtime(self):

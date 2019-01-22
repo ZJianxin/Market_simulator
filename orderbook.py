@@ -198,7 +198,11 @@ class Orderbook:
         # Modifies:
         print("ASK: ")
         for i in range(n):
-            print(i + "." + "price =",  self.ask_list[i].get_price(), "volume =", self.ask_list[i].get_volume())
+            id = self.ask_list[i]
+            order = self.order_dict[id]
+            print(i, "." + "price =",  order.get_price(), "volume =", order.get_remaining())
         print("BID: ")
         for i in range(n):
-            print(i + "." + "price =", self.bid_list[i].get_price(), "volume =", self.bid_list[i].get_volume())
+            id = self.bid_list[i]
+            order = self.order_dict[id]
+            print(i, "." + "price =", order.get_price(), "volume =", order.get_remaining())
