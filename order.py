@@ -77,7 +77,7 @@ class Order:
         assert (update.get_reason() == 1 or update.get_reason() == 2)
         if update.get_reason() == 1:
             # this order is cancelled
-            assert (update.get_delta() == 0 and update.get_remaining == 0 and update.get_price() == self.get_price())
+            assert (update.get_delta() + self.remaining == 0and update.get_remaining == 0 and update.get_price() == self.get_price())
             self.remaining = 0
             self.is_dead = True
             self.deathtime = update.get_timestamp()
