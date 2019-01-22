@@ -226,6 +226,10 @@ class Orderbook:
         return self.order_dict[id].get_birthtime()
 
     def _place_order_helper(self, new_order):
+        # helper function add a new order into an orderbook
+        # Input: an order object
+        # Returns:
+        # Modifies: all containers
         id = new_order.get_id()
         self.order_dict[id] = new_order
         pv_pair = (new_order.get_price(), new_order.get_remaining())

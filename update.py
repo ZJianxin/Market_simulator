@@ -61,6 +61,11 @@ class Update:
     def get_id(self):
         return int(self.id)
 
+    def round_remaining(self, n=12):
+        self.remaining = round(self.remaining, n)
+
+    def round_delta(self, n):
+        self.delta = round(self.delta, n)
 
 '''
 Sample function comment:

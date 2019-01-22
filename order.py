@@ -90,3 +90,6 @@ class Order:
             if self.remaining == 0:
                 self.is_dead = True
                 self.deathtime = update.get_timestamp()
+
+    def round_remaining(self, n=12):
+        self.remaining = round(self.remaining, n)

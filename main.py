@@ -15,7 +15,7 @@ def main(argv):
         updates_matrix[i, 2] = round(updates_matrix[i, 2], 12)
         updates_matrix[i, 3] = round(updates_matrix[i, 3], 12)
     ##################################
-    #print(updates_matrix[102])
+    print(updates_matrix[729])
     market = Market(initial_order_matrix, updates_matrix)
     while (True):
         time = int(input("Type the time you'd like to query, -1 for exit : \n"))
