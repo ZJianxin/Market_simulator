@@ -44,7 +44,7 @@ class Orderbook:
         #self.ask_list = SortedList(key = lambda x, d=self.order_dict : d[x].get_price())
         self.ask_list = SortedList(key=self._id_to_price)
         #self.bid_list = SortedList(key = lambda x, d=self.order_dict : -d[x].get_price())
-        self.bid_list = SortedList(key= lambda x : -self._id_to_price(x))
+        self.bid_list = SortedList(key=self._id_to_price_neg)
         for i in range(data.shape[0]):
             order = Order(data[i, :])
             id = order.get_id()
@@ -55,7 +55,7 @@ class Orderbook:
                 self.price_volume_dict[price_volume_pair].add(id)
             else:
                 #self.price_volume_dict[price_volume_pair] = SortedList(key = lambda x, d=self.order_dict : d[x].get_birthtime())
-                self.price_volume_dict[price_volume_pair] = SortedList(key=lambda x: self._id_to_birthtime)
+                self.price_volume_dict[price_volume_pair] = SortedList(key=self._id_to_birthtime)
                 self.price_volume_dict[price_volume_pair].add(id)
             if (order.get_is_bid()):
                 self.bid_list.add(id)
@@ -154,7 +154,9 @@ class Orderbook:
         assert (self._check_timestamp_consistency(update), "INCONSISTEN TIMESTAMPS, ATTEMPT TO EXECTUE PAST UPDATE")
         new_order = Order(update)
         id = new_order.get_id()
+        print("ID =", id)
         self.order_dict[id] = new_order
+        print(id in self.order_dict.keys())
         pv_pair = (new_order.get_price(), new_order.get_remaining())
         if (pv_pair in self.price_volume_dict.keys()):
             self.price_volume_dict[pv_pair].add(id)
@@ -212,6 +214,9 @@ class Orderbook:
 
     def _id_to_price(self, id):
         return self.order_dict[id].get_price()
+
+    def _id_to_price_neg(self, id):
+        return -self.order_dict[id].get_price()
 
     def _id_to_birthtime(self, id):
         return self.order_dict[id].get_birthtime()
