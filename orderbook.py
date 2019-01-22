@@ -21,6 +21,7 @@ class Orderbook:
     #   initializer(Orderbook, np.ndarray, [optional] int timestamp) - initialize an Orderbook object from a number ndarray
     #   execute_update(Orderbook, Update) - update an order and time stamp, can't execute an order before timestamp
     #   ?todo: *design method allow information retrieval
+    #   show_head(int n == 5) - print the first n ask orders and n bid orders in the market
     # private:
     #   _remove_order(Orderbook self, int id) - remove from order_dict, price_volume_dict, ask_list, bid_list
     #   _cancel_order(Orderbook self, Update update) - match order; remove it
@@ -188,3 +189,16 @@ class Orderbook:
             self._place_order(update)
         else:
             raise Exception("INVALID UPDATE REASON, VALUE NOT IN {1, 2, 3}")
+
+    def show_head(self, n = 5):
+        # print the first n bids and first n asks
+        # Input:
+        #       n - optional, number of orders in each list to be printed
+        # Returns:
+        # Modifies:
+        print("ASK: ")
+        for i in range(n):
+            print(i + "." + "price =",  self.ask_list[i].get_price(), "volume =", self.ask_list[i].get_volume())
+        print("BID: ")
+        for i in range(n):
+            print(i + "." + "price =", self.bid_list[i].get_price(), "volume =", self.bid_list[i].get_volume())
