@@ -33,8 +33,8 @@ class Market:
         i = 0
         next_update = Update(self.updates_matrix[i, :])
         while (next_update.get_timestamp() < time):
+            #print(i)
             orderbook.execute_update(next_update)
             i += 1
-            print(i)
             next_update = Update(self.updates_matrix[i, :])
         return orderbook
