@@ -32,7 +32,7 @@ class Orderbook:
     #   _check_timestamp_consistency(Orderbook self, Update update) - helper function, check if an update is consistent
     #                                                               with orderbook's timestamp.
     #                                                               i.e. update's time is ahead of orderbook's timestampt
-    #!!!!!!!!!rememeber update timestamp
+    #Note: cancel - 1, place - 2, trade - 3
     def __init__(self, data, timestamp = 0):
         #Input: a numpy ndarray, formatted as desired initial orders
         #Returns:
@@ -41,8 +41,10 @@ class Orderbook:
         self.timestamp = timestamp
         self.order_dict = {}
         self.price_volume_dict = {}
-        self.ask_list = SortedList(key = lambda x, d=self.order_dict : d[x].get_price())
-        self.bid_list = SortedList(key = lambda x, d=self.order_dict : -d[x].get_price())
+        #self.ask_list = SortedList(key = lambda x, d=self.order_dict : d[x].get_price())
+        self.ask_list = SortedList(key=self._id_to_price)
+        #self.bid_list = SortedList(key = lambda x, d=self.order_dict : -d[x].get_price())
+        self.bid_list = SortedList(key= lambda x : -self._id_to_price(x))
         for i in range(data.shape[0]):
             order = Order(data[i, :])
             id = order.get_id()
@@ -52,7 +54,8 @@ class Orderbook:
             if (price_volume_pair in self.price_volume_dict.keys()):
                 self.price_volume_dict[price_volume_pair].add(id)
             else:
-                self.price_volume_dict[price_volume_pair] = SortedList(key = lambda x, d=self.order_dict : d[x].get_birthtime())
+                #self.price_volume_dict[price_volume_pair] = SortedList(key = lambda x, d=self.order_dict : d[x].get_birthtime())
+                self.price_volume_dict[price_volume_pair] = SortedList(key=lambda x: self._id_to_birthtime)
                 self.price_volume_dict[price_volume_pair].add(id)
             if (order.get_is_bid()):
                 self.bid_list.add(id)
@@ -114,7 +117,7 @@ class Orderbook:
         #   the trading Order object.
         #   price_volume_dict - corresponding key will be removed by _remove_order
         #   other containers - the order will be removed from all relevant containers if order.remaining == 0
-        assert (update.get_reason() == 2, "INCONSISTEN UPDATE REASON")
+        assert (update.get_reason() == 3, "INCONSISTEN UPDATE REASON")
         assert (self._check_timestamp_consistency(update), "INCONSISTEN TIMESTAMPS, ATTEMPT TO EXECTUE PAST UPDATE")
         if (update.is_bid):
             id = self.bid_list[0]
@@ -147,7 +150,7 @@ class Orderbook:
         # Modifies:
         #   create trading Order object.
         #   all containers
-        assert (update.get_reason() == 3, "INCONSISTEN UPDATE REASON")
+        assert (update.get_reason() == 2, "INCONSISTEN UPDATE REASON")
         assert (self._check_timestamp_consistency(update), "INCONSISTEN TIMESTAMPS, ATTEMPT TO EXECTUE PAST UPDATE")
         new_order = Order(update)
         id = new_order.get_id()
@@ -183,9 +186,9 @@ class Orderbook:
         #   the orderbook
         if (update.get_reason() == 1):
             self._cancel_order(update)
-        elif (update.get_reason() == 2):
-            self._trade_order(update)
         elif (update.get_reason() == 3):
+            self._trade_order(update)
+        elif (update.get_reason() == 2):
             self._place_order(update)
         else:
             raise Exception("INVALID UPDATE REASON, VALUE NOT IN {1, 2, 3}")
@@ -206,3 +209,9 @@ class Orderbook:
             id = self.bid_list[i]
             order = self.order_dict[id]
             print(i, "." + "price =", order.get_price(), "volume =", order.get_remaining())
+
+    def _id_to_price(self, id):
+        return self.order_dict[id].get_price()
+
+    def _id_to_birthtime(self, id):
+        return self.order_dict[id].get_birthtime()
