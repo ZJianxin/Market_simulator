@@ -154,9 +154,7 @@ class Orderbook:
         assert (self._check_timestamp_consistency(update), "INCONSISTEN TIMESTAMPS, ATTEMPT TO EXECTUE PAST UPDATE")
         new_order = Order(update)
         id = new_order.get_id()
-        print("ID =", id)
         self.order_dict[id] = new_order
-        print(id in self.order_dict.keys())
         pv_pair = (new_order.get_price(), new_order.get_remaining())
         if (pv_pair in self.price_volume_dict.keys()):
             self.price_volume_dict[pv_pair].add(id)
