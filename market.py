@@ -11,7 +11,7 @@ class Market:
     # Methods:
     #   initializer - construct the initial orderbook
     #   calculate_orderbook - calculate an orderbook using all updates before a given timestamp
-    def __int__(self, order_data, update_date):
+    def __int__(self, order_data, update_data):
         # construct a market object, initialize the orderbook, store the update matrix
         # Input:
         #   order_date - a numpy array with desired format
@@ -20,8 +20,7 @@ class Market:
         # Modifies:
         assert (isinstance(order_data, np.ndarray) and isinstance(update_date, np.ndarray))
         self.initial_orderbook = Orderbook(order_data)
-        self.updates_matrix = update_date
-        self.next_update_index =
+        self.updates_matrix = update_data
 
     def calculate_orderbook(self, time):
         # calculate an orderbook at the given time
