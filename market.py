@@ -33,8 +33,16 @@ class Market:
         i = 0
         next_update = Update(self.updates_matrix[i, :])
         while (next_update.get_timestamp() < time):
+            #print(i)
             orderbook.execute_update(next_update)
             i += 1
-            print(i)
+            '''
+            if (i == 729) :
+                for p, v in orderbook.price_volume_dict.keys():
+                    if (p == 2500):
+                        id = orderbook.price_volume_dict[(p, v)][0]
+                        order = orderbook.order_dict[id]
+                        print(order.get_price(), order.get_remaining())
+            '''
             next_update = Update(self.updates_matrix[i, :])
         return orderbook

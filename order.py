@@ -43,7 +43,7 @@ class Order:
             update = array
             assert (isinstance(update, Update))
             assert (update.get_reason() == 2)
-            assert (update.get_remaining() == update.get_delta())
+            #assert (update.get_remaining() == update.get_delta())
             self.is_bid = update.get_is_bid()
             self.price = update.get_price()
             self.remaining = update.get_remaining()
@@ -74,19 +74,22 @@ class Order:
         return self.deathtime
 
     def modify(self, update):
-        assert (update.get_reason() == 1 or update.get_reason() == 2)
+        assert (update.get_reason() == 1 or update.get_reason() == 3)
         if update.get_reason() == 1:
             # this order is cancelled
-            assert (update.get_delta() + self.remaining == 0)
-            assert (update.get_remaining() == 0)
+            #assert (update.get_delta() + self.remaining == 0)
+            #assert (update.get_remaining() == 0)
             assert (update.get_price() == self.get_price())
-            self.remaining = 0
+            self.remaining = update.get_remaining()
             self.is_dead = True
             self.deathtime = update.get_timestamp()
         elif update.get_reason() == 3:
             # this order is traded, partially or completely
             assert (update.get_price() == self.get_price())
-            self.remaining = update.get_remainming()
+            self.remaining = update.get_remaining()
             if self.remaining == 0:
                 self.is_dead = True
                 self.deathtime = update.get_timestamp()
+
+    def round_remaining(self, n=12):
+        self.remaining = round(self.remaining, n)

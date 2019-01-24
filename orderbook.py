@@ -105,6 +105,8 @@ class Orderbook:
         order = self.order_dict[id]
         self._remove_order(id)
         order.modify(update)
+        if (order.remaining != 0):
+            self._place_order_helper(order)
 
     def _trade_order(self, update):
         # trade an order AT THE TOP OF ORDERBOOK. i.e either bid_list[0] or ask_list[0] will be modified.
@@ -127,7 +129,8 @@ class Orderbook:
         old_pv_pair = (order.get_price(), order.get_remaining())
         assert (order.remaining == update.remaining - update.delta and order.price == update.price,
                 "INCONSISTENT TRADING PRICE/VOLUME ")
-        order.remaining = update.remaining
+        #order.remaining = update.remaining
+        order.modify(update)
         if (order.remaining == 0):
             self._remove_order(id)
         else:
@@ -153,6 +156,7 @@ class Orderbook:
         assert (update.get_reason() == 2, "INCONSISTEN UPDATE REASON")
         assert (self._check_timestamp_consistency(update), "INCONSISTEN TIMESTAMPS, ATTEMPT TO EXECTUE PAST UPDATE")
         new_order = Order(update)
+        '''
         id = new_order.get_id()
         self.order_dict[id] = new_order
         pv_pair = (new_order.get_price(), new_order.get_remaining())
@@ -165,6 +169,8 @@ class Orderbook:
             self.bid_list.add(id)
         else:
             self.ask_list.add(id)
+        '''
+        self._place_order_helper(new_order)
 
     def _check_timestamp_consistency(self, update, match_time=True):
         # INPUT: an Update object
@@ -218,3 +224,21 @@ class Orderbook:
 
     def _id_to_birthtime(self, id):
         return self.order_dict[id].get_birthtime()
+
+    def _place_order_helper(self, new_order):
+        # helper function add a new order into an orderbook
+        # Input: an order object
+        # Returns:
+        # Modifies: all containers
+        id = new_order.get_id()
+        self.order_dict[id] = new_order
+        pv_pair = (new_order.get_price(), new_order.get_remaining())
+        if (pv_pair in self.price_volume_dict.keys()):
+            self.price_volume_dict[pv_pair].add(id)
+        else:
+            self.price_volume_dict[pv_pair] = SortedList(key=lambda x, d=self.order_dict: d[x].get_birthtime())
+            self.price_volume_dict[pv_pair].add(id)
+        if (new_order.get_is_bid()):
+            self.bid_list.add(id)
+        else:
+            self.ask_list.add(id)
