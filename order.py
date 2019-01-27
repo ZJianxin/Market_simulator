@@ -75,6 +75,7 @@ class Order:
 
     def modify(self, update):
         assert (update.get_reason() == 1 or update.get_reason() == 3)
+        assert (update.get_is_bid() == self.get_is_bid())
         if update.get_reason() == 1:
             # this order is cancelled
             #assert (update.get_delta() + self.remaining == 0)

@@ -9,13 +9,15 @@ class Orderbook:
     #   timestamp - the time associated with the snapshot of market, automatically updated with latest order;
     #               it's the USER's responsibility to maintain its integrity
     #   order_dict - a dictionary mapping order_id to order, the container of Order objects
-    #   price_volume_dict - a dictionary mapping a tuple (price, volume)
-    #                                         to a list of SortedList IDs in increasing arrangement of order.birthtime
+    #   price_volume_dict - a dictionary mapping price
+    #                                         to a list of SortedList IDs
     #                       utilized to retrieve the corresponding order with cancel type,
     #                       delete the old key-value pair and rehash once an order has been modified.
     #   ask_list - a list of ask orders' id sorted by price in increasing order
     #   bid_list - a list of bid orders' id sorted by price in decrease order
     #              assume in each "trade" update, only best price be executed.
+    #   error_tol - the tolerance of precision of remaining volume
+    #   update_counter - count the number of updates
     # Methods:
     # public:
     #   initializer(Orderbook, np.ndarray, [optional] int timestamp) - initialize an Orderbook object from a number ndarray
@@ -32,8 +34,14 @@ class Orderbook:
     #   _check_timestamp_consistency(Orderbook self, Update update) - helper function, check if an update is consistent
     #                                                               with orderbook's timestamp.
     #                                                               i.e. update's time is ahead of orderbook's timestampt
+    #   _id_to_price -
+    #   _id_to_price_neg -
+    #   _id_to_birthtime -
+    #   _place_order_helper (Orderbook self, Order new_order) - add a new order to all containers
+    #   _add_to_pvdict
+    #   _remove_from_pv_dict
     #Note: cancel - 1, place - 2, trade - 3
-    def __init__(self, data, timestamp = 0):
+    def __init__(self, data, timestamp = 0, error_tol = 1e-4):
         #Input: a numpy ndarray, formatted as desired initial orders
         #Returns:
         #Modifies:
@@ -41,22 +49,15 @@ class Orderbook:
         self.timestamp = timestamp
         self.order_dict = {}
         self.price_volume_dict = {}
-        #self.ask_list = SortedList(key = lambda x, d=self.order_dict : d[x].get_price())
         self.ask_list = SortedList(key=self._id_to_price)
-        #self.bid_list = SortedList(key = lambda x, d=self.order_dict : -d[x].get_price())
         self.bid_list = SortedList(key=self._id_to_price_neg)
+        self.error_tol = error_tol
+        self.update_counter = 0
         for i in range(data.shape[0]):
             order = Order(data[i, :])
             id = order.get_id()
             self.order_dict[id] = order
-            #self.price_volume_dict[(order.get_price(), order.get_remaining())] = order.get_id()
-            price_volume_pair = (order.get_price(), order.get_remaining())
-            if (price_volume_pair in self.price_volume_dict.keys()):
-                self.price_volume_dict[price_volume_pair].add(id)
-            else:
-                #self.price_volume_dict[price_volume_pair] = SortedList(key = lambda x, d=self.order_dict : d[x].get_birthtime())
-                self.price_volume_dict[price_volume_pair] = SortedList(key=self._id_to_birthtime)
-                self.price_volume_dict[price_volume_pair].add(id)
+            self._add_to_pvdict(order)
             if (order.get_is_bid()):
                 self.bid_list.add(id)
             else:
@@ -72,12 +73,7 @@ class Orderbook:
         #   ask_list - remove the key from ask_list; order object retained; original order retained.
         #   bid_list - remove the key from bid_list; order object retained; original order retained.
         order = self.order_dict[id]
-        price_volume_pair = (order.get_price(), order.get_remaining())
-        assert (price_volume_pair in self.price_volume_dict.keys()
-                and len(self.price_volume_dict[price_volume_pair]) > 0, "INVALID PRICE_VOLUME_PAIR KEY")
-        #if len(self.price_volume_dict[price_volume_pair] == 1):
-        #    del self.price_volume_dict[price_volume_pair]
-        self.price_volume_dict[price_volume_pair].remove(id)
+        self._remove_from_pv_dict(order.get_price(), order.get_remaining(), order.get_is_bid())
         if (order.get_is_bid()):
             self.bid_list.remove(id)
         else:
@@ -98,15 +94,13 @@ class Orderbook:
         #   bid_list - corresponding id will be removed by _remove_order
         assert (update.reason == 1, "INCONSISTEN UPDATE REASON")
         assert (self._check_timestamp_consistency(update), "INCONSISTEN TIMESTAMPS, ATTEMPT TO EXECTUE PAST UPDATE")
-        pv_pair = (update.get_price(), update.get_remaining() - update.get_delta())
-        assert (pv_pair in self.price_volume_dict.keys()
-                and len(self.price_volume_dict[pv_pair]) > 0, "INVALID PRICE_VOLUME_PAIR KEY")
-        id = self.price_volume_dict[pv_pair][0]
+        price = update.get_price()
+        before_remaining = update.get_remaining() - update.get_delta()
+        id = self._get_id_from_price_remaining(price, before_remaining, update.get_is_bid())
         order = self.order_dict[id]
-        self._remove_order(id)
+        if update.get_remaining() == 0.0:
+            self._remove_order(id)
         order.modify(update)
-        if (order.remaining != 0):
-            self._place_order_helper(order)
 
     def _trade_order(self, update):
         # trade an order AT THE TOP OF ORDERBOOK. i.e either bid_list[0] or ask_list[0] will be modified.
@@ -125,25 +119,13 @@ class Orderbook:
             id = self.bid_list[0]
         else:
             id = self.ask_list[0]
+        id = self._get_id_from_price_remaining(update.get_price(), update.get_remaining() - update.get_delta(), update.get_is_bid()) 
         order = self.order_dict[id]
-        old_pv_pair = (order.get_price(), order.get_remaining())
         assert (order.remaining == update.remaining - update.delta and order.price == update.price,
                 "INCONSISTENT TRADING PRICE/VOLUME ")
-        #order.remaining = update.remaining
-        order.modify(update)
-        if (order.remaining == 0):
+        if (update.get_remaining() == 0.0):
             self._remove_order(id)
-        else:
-            pv_pair = (order.get_price(), order.get_remaining()) #compute the new key
-            assert (old_pv_pair in self.price_volume_dict.keys()
-                    and len(self.price_volume_dict[old_pv_pair]) > 0, "INVALID PRICE_VOLUME_PAIR KEY")
-            self.price_volume_dict[old_pv_pair].remove(id)
-            #add update the new key
-            if (pv_pair in self.price_volume_dict.keys()):
-                self.price_volume_dict[pv_pair].add(id)
-            else:
-                self.price_volume_dict[pv_pair] = SortedList(key=lambda x, d=self.order_dict: d[x].get_birthtime())
-                self.price_volume_dict[pv_pair].add(id)
+        order.modify(update)
 
     def _place_order(self, update):
         # place a new order into the orderbook. All containers shall be modified.
@@ -156,20 +138,6 @@ class Orderbook:
         assert (update.get_reason() == 2, "INCONSISTEN UPDATE REASON")
         assert (self._check_timestamp_consistency(update), "INCONSISTEN TIMESTAMPS, ATTEMPT TO EXECTUE PAST UPDATE")
         new_order = Order(update)
-        '''
-        id = new_order.get_id()
-        self.order_dict[id] = new_order
-        pv_pair = (new_order.get_price(), new_order.get_remaining())
-        if (pv_pair in self.price_volume_dict.keys()):
-            self.price_volume_dict[pv_pair].add(id)
-        else:
-            self.price_volume_dict[pv_pair] = SortedList(key=lambda x, d=self.order_dict: d[x].get_birthtime())
-            self.price_volume_dict[pv_pair].add(id)
-        if (new_order.get_is_bid()):
-            self.bid_list.add(id)
-        else:
-            self.ask_list.add(id)
-        '''
         self._place_order_helper(new_order)
 
     def _check_timestamp_consistency(self, update, match_time=True):
@@ -190,6 +158,13 @@ class Orderbook:
         # Returns:
         # Modifies:
         #   the orderbook
+        #DEBUG CODE
+        #problem update: 53792
+        #print(self.update_counter, update.get_price(), update.get_remaining())
+        if (self.update_counter == 53792):
+            print(update.get_is_bid(), update.get_remaining(), update.get_delta() )
+        #
+        self.update_counter += 1
         if (update.get_reason() == 1):
             self._cancel_order(update)
         elif (update.get_reason() == 3):
@@ -205,6 +180,7 @@ class Orderbook:
         #       n - optional, number of orders in each list to be printed
         # Returns:
         # Modifies:
+        print("number of executed updates: ", self.update_counter)
         print("ASK: ")
         for i in range(n):
             id = self.ask_list[i]
@@ -232,13 +208,33 @@ class Orderbook:
         # Modifies: all containers
         id = new_order.get_id()
         self.order_dict[id] = new_order
-        pv_pair = (new_order.get_price(), new_order.get_remaining())
-        if (pv_pair in self.price_volume_dict.keys()):
-            self.price_volume_dict[pv_pair].add(id)
-        else:
-            self.price_volume_dict[pv_pair] = SortedList(key=lambda x, d=self.order_dict: d[x].get_birthtime())
-            self.price_volume_dict[pv_pair].add(id)
+        self._add_to_pvdict(new_order)
         if (new_order.get_is_bid()):
             self.bid_list.add(id)
         else:
             self.ask_list.add(id)
+
+    def _id_to_remaining(self, id):
+        return self.order_dict[id].get_remaining()
+
+    def _add_to_pvdict(self, order):
+        if order.get_price() not in self.price_volume_dict.keys():
+            self.price_volume_dict[order.get_price()] = SortedList()
+        self.price_volume_dict[order.get_price()].add(order.get_id())
+
+    def _remove_from_pv_dict(self, price, remaining, is_bid):
+        victim_list = self.price_volume_dict[price]
+        for ele in victim_list:
+            if (abs(self._id_to_remaining(ele) - remaining) < self.error_tol and self.order_dict[ele].get_is_bid() == is_bid):
+                victim_list.remove(ele)
+                return
+        raise Exception("CANNOT FIND REMAINING VOLUME WITHIN THRESHOLD")
+
+    def _get_id_from_price_remaining(self, price, remaining, is_bid):
+        l = self.price_volume_dict[price]
+        for ele in l:
+            if (abs(self._id_to_remaining(ele) - remaining) < self.error_tol and self.order_dict[ele].get_is_bid() == is_bid):
+                return ele
+        print(l)
+        print(price, remaining)
+        raise Exception("CANNOT FIND REMAINING VOLUME WITHIN THRESHOLD")
