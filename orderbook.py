@@ -119,7 +119,7 @@ class Orderbook:
             id = self.bid_list[0]
         else:
             id = self.ask_list[0]
-        id = self._get_id_from_price_remaining(update.get_price(), update.get_remaining() - update.get_delta(), update.get_is_bid()) 
+        id = self._get_id_from_price_remaining(update.get_price(), update.get_remaining() - update.get_delta(), update.get_is_bid())
         order = self.order_dict[id]
         assert (order.remaining == update.remaining - update.delta and order.price == update.price,
                 "INCONSISTENT TRADING PRICE/VOLUME ")
