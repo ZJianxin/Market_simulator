@@ -9,7 +9,7 @@ def main(argv):
     updates_matrix = numpy.load(updates_file)
     # DEBUG CODE
     '''
-    price = 3433.06
+    price = 3426.22
     volume = 2.92346414
     for i in range(initial_order_matrix.shape[0]):
         if (abs(initial_order_matrix[i, 2] - volume) < 1e-5):
@@ -21,6 +21,27 @@ def main(argv):
             exit(1)
     print('NOT EXIST')
     exit(2)
+    '''
+    '''
+    price = 3426.22
+    volume = 3.0
+    initial_counter = 0
+    update_counter = {}
+    update_counter[1] = 0
+    update_counter[2] = 0
+    update_counter[3] = 0
+    time = 1549130255361
+    for i in range(initial_order_matrix.shape[0]):
+        if (initial_order_matrix[i, 1] == price):
+            initial_counter += 1
+    for i in range(updates_matrix.shape[0]):
+        type = updates_matrix[i, 6]
+        if (updates_matrix[i, 1] == price and updates_matrix[i, 4] <= time):
+            print(updates_matrix[i, :])
+            print()
+            update_counter[type] += 1
+    print(initial_counter, update_counter)
+    exit(1)
     '''
     ##########
     market = Market(initial_order_matrix, updates_matrix)

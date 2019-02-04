@@ -74,23 +74,12 @@ class Order:
         return self.deathtime
 
     def modify(self, update):
-        assert (update.get_reason() == 1 or update.get_reason() == 3)
         assert (update.get_is_bid() == self.get_is_bid())
-        if update.get_reason() == 1:
-            # this order is cancelled
-            #assert (update.get_delta() + self.remaining == 0)
-            #assert (update.get_remaining() == 0)
-            assert (update.get_price() == self.get_price())
-            self.remaining = update.get_remaining()
+        assert (update.get_price() == self.get_price())
+        self.remaining = update.get_remaining()
+        if self.remaining == 0:
             self.is_dead = True
             self.deathtime = update.get_timestamp()
-        elif update.get_reason() == 3:
-            # this order is traded, partially or completely
-            assert (update.get_price() == self.get_price())
-            self.remaining = update.get_remaining()
-            if self.remaining == 0:
-                self.is_dead = True
-                self.deathtime = update.get_timestamp()
 
     def round_remaining(self, n=12):
         self.remaining = round(self.remaining, n)

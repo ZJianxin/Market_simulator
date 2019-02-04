@@ -130,15 +130,20 @@ class Orderbook:
     def _place_order(self, update):
         # place a new order into the orderbook. All containers shall be modified.
         # Input: an Update object;
-        #       assume update.reason = 3, i.e. the "reason" attribute of update should be "place"
+        #       assume update.reason = 2, i.e. the "reason" attribute of update should be "place"
         # Returns:
         # Modifies:
         #   create trading Order object.
         #   all containers
         assert (update.get_reason() == 2, "INCONSISTEN UPDATE REASON")
         assert (self._check_timestamp_consistency(update), "INCONSISTEN TIMESTAMPS, ATTEMPT TO EXECTUE PAST UPDATE")
-        new_order = Order(update)
-        self._place_order_helper(new_order)
+        if (update.get_remaining() == update.get_delta()):
+            new_order = Order(update)
+            self._place_order_helper(new_order)
+        else:
+            id = self._get_id_from_price_remaining(update.get_price(), update.get_remaining() - update.get_delta(), update.get_is_bid())
+            order = self.order_dict[id]
+            order.modify(update)
 
     def _check_timestamp_consistency(self, update, match_time=True):
         # INPUT: an Update object
@@ -175,6 +180,9 @@ class Orderbook:
         # Returns:
         # Modifies:
         print("number of executed updates: ", self.update_counter)
+        print("number of total orders: ", len(self.order_dict))
+        print("number of asks: ", len(self.ask_list))
+        print("number of bids: ", len(self.bid_list))
         print("ASK: ")
         for i in range(n):
             id = self.ask_list[i]
@@ -229,6 +237,7 @@ class Orderbook:
         for ele in l:
             if (abs(self._id_to_remaining(ele) - remaining) < self.error_tol and self.order_dict[ele].get_is_bid() == is_bid):
                 return ele
+        print(self.timestamp)
         print(l)
         print(price, remaining)
         raise Exception("CANNOT FIND REMAINING VOLUME WITHIN THRESHOLD")
