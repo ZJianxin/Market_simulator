@@ -32,8 +32,9 @@ class Market:
         orderbook = copy.deepcopy(self.initial_orderbook)
         i = 0
         next_update = Update(self.updates_matrix[i, :])
-        while (next_update.get_timestamp() < time):
+        while (next_update.get_timestamp() < time and i < self.updates_matrix.shape[0]):
             #print(i)
+            next_update = Update(self.updates_matrix[i, :])
             orderbook.execute_update(next_update)
             i += 1
             '''
@@ -44,5 +45,5 @@ class Market:
                         order = orderbook.order_dict[id]
                         print(order.get_price(), order.get_remaining())
             '''
-            next_update = Update(self.updates_matrix[i, :])
+            #next_update = Update(self.updates_matrix[i, :])
         return orderbook

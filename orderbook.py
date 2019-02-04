@@ -41,7 +41,7 @@ class Orderbook:
     #   _add_to_pvdict
     #   _remove_from_pv_dict
     #Note: cancel - 1, place - 2, trade - 3
-    def __init__(self, data, timestamp = 0, error_tol = 1e-4):
+    def __init__(self, data, timestamp = 0, error_tol = 1e-6):
         #Input: a numpy ndarray, formatted as desired initial orders
         #Returns:
         #Modifies:
@@ -158,12 +158,6 @@ class Orderbook:
         # Returns:
         # Modifies:
         #   the orderbook
-        #DEBUG CODE
-        #problem update: 53792
-        #print(self.update_counter, update.get_price(), update.get_remaining())
-        if (self.update_counter == 53792):
-            print(update.get_is_bid(), update.get_remaining(), update.get_delta() )
-        #
         self.update_counter += 1
         if (update.get_reason() == 1):
             self._cancel_order(update)
@@ -174,7 +168,7 @@ class Orderbook:
         else:
             raise Exception("INVALID UPDATE REASON, VALUE NOT IN {1, 2, 3}")
 
-    def show_head(self, n = 5):
+    def show_head(self, n = 20):
         # print the first n bids and first n asks
         # Input:
         #       n - optional, number of orders in each list to be printed

@@ -9,17 +9,20 @@ def main(argv):
     updates_matrix = numpy.load(updates_file)
     # DEBUG CODE
     '''
+    price = 3433.06
+    volume = 2.92346414
     for i in range(initial_order_matrix.shape[0]):
-        if (abs(initial_order_matrix[i, 2] - 1.04839784) < 1e-5):
+        if (abs(initial_order_matrix[i, 2] - volume) < 1e-5):
             print('TRUE')
             exit(1)
-    for i in range(53792):
-        if (abs(updates_matrix[i, 2] - 1.04839784) < 1e-5):
+    for i in range(updates_matrix.shape[0]):
+        if (abs(updates_matrix[i, 2] - volume) < 1e-5):
             print('TRUE')
             exit(1)
     print('NOT EXIST')
     exit(2)
     '''
+    ##########
     market = Market(initial_order_matrix, updates_matrix)
     while (True):
         time = int(input("Type the time you'd like to query, -1 for exit : \n"))
