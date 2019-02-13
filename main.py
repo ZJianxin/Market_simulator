@@ -9,17 +9,19 @@ def main(argv):
     updates_matrix = numpy.load(updates_file)
     # DEBUG CODE
     '''
-    price = 3426.22
-    volume = 2.92346414
+    price = 3618.86
+    volume = 1.04839784
+    init_counter = 0
+    update_counter = 0
     for i in range(initial_order_matrix.shape[0]):
-        if (abs(initial_order_matrix[i, 2] - volume) < 1e-5):
-            print('TRUE')
-            exit(1)
+        if (abs(initial_order_matrix[i, 2] - volume) < 1e-3):
+            init_counter += 1
     for i in range(updates_matrix.shape[0]):
-        if (abs(updates_matrix[i, 2] - volume) < 1e-5):
-            print('TRUE')
-            exit(1)
-    print('NOT EXIST')
+        if (abs(updates_matrix[i, 2] - volume) < 1e-3):
+            update_counter += 1
+            print(updates_matrix[i, :])
+    print('occurrences in init:', init_counter, )
+    print('occurrences in update:', update_counter)
     exit(2)
     '''
     '''
@@ -46,11 +48,21 @@ def main(argv):
     ##########
     market = Market(initial_order_matrix, updates_matrix)
     while (True):
-        time = int(input("Type the time you'd like to query, -1 for exit : \n"))
-        if (time == -1):
+        command = input("Type the time you'd like to query, -1, or 'reset' : \n")
+        if (command == "-1"):
             break
-        ob = market.calculate_orderbook(time)
-        ob.show_head()
+        elif (command == "reset"):
+            market.reset()
+        elif (command == ""):
+            continue;
+        else:
+            try:
+                time = int(command)
+                ob = market.calculate_orderbook(time)
+                ob.show_head()
+                market.print_num_malicious()
+            except:
+                continue;
     return 0
 
 

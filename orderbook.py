@@ -98,7 +98,7 @@ class Orderbook:
         before_remaining = update.get_remaining() - update.get_delta()
         id = self._get_id_from_price_remaining(price, before_remaining, update.get_is_bid())
         order = self.order_dict[id]
-        if update.get_remaining() == 0.0:
+        if update.get_remaining() == 0 :
             self._remove_order(id)
         order.modify(update)
 
@@ -121,9 +121,9 @@ class Orderbook:
             id = self.ask_list[0]
         id = self._get_id_from_price_remaining(update.get_price(), update.get_remaining() - update.get_delta(), update.get_is_bid())
         order = self.order_dict[id]
-        assert (order.remaining == update.remaining - update.delta and order.price == update.price,
-                "INCONSISTENT TRADING PRICE/VOLUME ")
-        if (update.get_remaining() == 0.0):
+        #assert (order.remaining == update.remaining - update.delta and order.price == update.price,
+        #    "INCONSISTENT TRADING PRICE/VOLUME ")
+        if update.get_remaining() == 0.0 :
             self._remove_order(id)
         order.modify(update)
 
@@ -137,7 +137,7 @@ class Orderbook:
         #   all containers
         assert (update.get_reason() == 2, "INCONSISTEN UPDATE REASON")
         assert (self._check_timestamp_consistency(update), "INCONSISTEN TIMESTAMPS, ATTEMPT TO EXECTUE PAST UPDATE")
-        if (update.get_remaining() == update.get_delta()):
+        if (abs(update.get_remaining() - update.get_delta()) < self.error_tol):
             new_order = Order(update)
             self._place_order_helper(new_order)
         else:
@@ -238,6 +238,9 @@ class Orderbook:
             if (abs(self._id_to_remaining(ele) - remaining) < self.error_tol and self.order_dict[ele].get_is_bid() == is_bid):
                 return ele
         print(self.timestamp)
-        print(l)
+        print("ids at this price", l)
+        print("price and volume for orders at the same price:")
+        for id in l:
+            print(self.order_dict[id].get_price(), self.order_dict[id].get_remaining())
         print(price, remaining)
         raise Exception("CANNOT FIND REMAINING VOLUME WITHIN THRESHOLD")
