@@ -2,6 +2,9 @@ from orderbook import *
 from update import *
 import numpy as np
 import copy
+from os import listdir
+from os.path import isfile, join
+from bisect import bisect_left
 
 class Market:
     # simulate transactions in the market, calculate the orderbook at a given time
@@ -12,7 +15,7 @@ class Market:
     # Methods:
     #   initializer - construct the initial orderbook
     #   calculate_orderbook - calculate an orderbook using all updates before a given timestamp
-    def __init__(self, order_data, update_data):
+    def __init__(self, order_data, update_data, order_dir):
         # construct a market object, initialize the orderbook, store the update matrix
         # Input:
         #   order_date - a numpy array with desired format
@@ -26,6 +29,11 @@ class Market:
         self.updates_counter = 0
         self.malicious_updates_counter = 0
         self.time = 0
+        self.order_dir = order_dir
+        files = [f for f in listdir(self.order_dir) if isfile(join(self.order_dir, f))]
+        self.files = sorted(files)
+        self.files_num = [int(f[:-4]) for f in sorted(files)]
+        self.closest_prior = 0
 
     def calculate_orderbook(self, time):
         # calculate an orderbook at the given time
@@ -40,6 +48,19 @@ class Market:
             print("query a time later than", self.time)
             print("or use 'reset' to reset the orderbook")
             raise INVALID_TIME("INVALID TIME")
+
+        #load from file
+        if self.order_dir != None:
+            query_prior = bisect_left(self.files_num, time) - 1
+            jump_time = self.files_num[query_prior]
+            if query_prior > self.closest_prior:
+                self.closest_prior = query_prior
+                order = np.load(self.order_dir + '/' + self.files[query_prior])
+                self.reload(order, jump_time)
+                while next_update.get_timestamp() < time:
+                    self.updates_counter += 1
+                    next_update = Update(self.updates_matrix[self.updates_counter, :])
+
         while (next_update.get_timestamp() < time and self.updates_counter < self.updates_matrix.shape[0]):
             next_update = Update(self.updates_matrix[self.updates_counter, :])
             try:
@@ -56,6 +77,7 @@ class Market:
         self.current_orderbook = copy.deepcopy(self.initial_orderbook)
         self.updates_counter = 0
         self.malicious_updates_counter = 0
+        self.time = 0
 
     def get_num_malicious(self):
         #return the number of malicious updates
@@ -64,3 +86,7 @@ class Market:
     def print_num_malicious(self):
         #return the number of malicious updates
         print("found abnormal updates:", self.malicious_updates_counter)
+
+    def reload(self, order_data, jump_time):
+        self.current_orderbook = Orderbook(order_data)
+        print("orderbook at", self.time, "jump to orderbook reloaded from dataset at", jump_time)

@@ -7,6 +7,9 @@ def main(argv):
     updates_file = argv[1]
     initial_order_matrix = numpy.load(initial_order_file)
     updates_matrix = numpy.load(updates_file)
+    order_directory = None
+    if len(argv) == 3:
+        order_directory = argv[2]
     # DEBUG CODE
     '''
     price = 3618.86
@@ -46,7 +49,7 @@ def main(argv):
     exit(1)
     '''
     ##########
-    market = Market(initial_order_matrix, updates_matrix)
+    market = Market(initial_order_matrix, updates_matrix, order_directory)
     while (True):
         command = input("Type the time you'd like to query, -1, or 'reset' : \n")
         if (command == "-1"):
