@@ -27,6 +27,7 @@ class Market:
         self.current_orderbook = Orderbook(order_data)
         self.updates_matrix = update_data
         self.updates_counter = 0
+        self.cancelled_counter = 0
         self.malicious_updates_counter = 0
         self.time = 0
         self.order_dir = order_dir
@@ -57,12 +58,16 @@ class Market:
                 self.closest_prior = query_prior
                 order = np.load(self.order_dir + '/' + self.files[query_prior])
                 self.reload(order, jump_time)
+                if next_update.get_reason() == 1:
+                    self.cancelled_counter += 1
                 while next_update.get_timestamp() < time:
                     self.updates_counter += 1
                     next_update = Update(self.updates_matrix[self.updates_counter, :])
 
         while (next_update.get_timestamp() < time and self.updates_counter < self.updates_matrix.shape[0]):
             next_update = Update(self.updates_matrix[self.updates_counter, :])
+            if next_update.get_reason() == 1:
+                self.cancelled_counter += 1
             try:
                 self.current_orderbook.execute_update(next_update)
             except:
@@ -78,6 +83,7 @@ class Market:
         self.updates_counter = 0
         self.malicious_updates_counter = 0
         self.time = 0
+        self.cancelled_counter = 0
 
     def get_num_malicious(self):
         #return the number of malicious updates
@@ -90,3 +96,6 @@ class Market:
     def reload(self, order_data, jump_time):
         self.current_orderbook = Orderbook(order_data)
         print("orderbook at", self.time, "jump to orderbook reloaded from dataset at", jump_time)
+
+    def get_cancelled_num(self):
+        return self.cancelled_counter
